@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="MattBerther.UriValidator" default="build" xmlns="http://nant.sf.net/schema/nant-0.8.3.50105.xsd">
+    <property name="build.debug" value="false"/>
+    <property name="build.dir" value="${nant.project.basedir}\build"/>
+    <property name="src.dir" value="${nant.project.basedir}"/>
+    <property name="dist.dir" value="${nant.project.basedir}\dist"/>
+    
+    <target name="clean">
+        <delete dir="${build.dir}" failonerror="false"/>
+    </target>
+    
+    <target name="build" depends="clean">
+        <mkdir dir="${build.dir}"/>
+        
+        <csc target="library" debug="${build.debug}" output="${build.dir}\${nant.project.name}.dll"
+            doc="${build.dir}\${nant.project.name}.xml">
+            
+            <sources basedir="${src.dir}">
+                <includes name="**/*.cs"/>
+                <excludes name="dist/**"/>
+            </sources>
+        </csc>    
+    </target>
+    
+    <target name="doc" depends="build">
+        <ndoc>
+            <assemblies basedir="${build.dir}">
+                <includes name="${nant.project.name}.dll"/>
+            </assemblies>
+            <documenters>
+                <documenter name="MSDN">
+                    <property name="OutputDirectory" value="${build.dir}\docs\" />
+                    <property name="HtmlHelpName" value="${nant.project.name}" />
+                    <property name="IncludeFavorites" value="False" />
+                    <property name="Title" value="${nant.project.name} Documentation" />
+                    <property name="LinkToSdkDocVersion" value="SDK_v1_1" />
+                    <property name="SplitTOCs" value="False" />
+                    <property name="DefaulTOC" value="" />
+                    <property name="ShowVisualBasic" value="True" />
+                    <property name="ShowMissingSummaries" value="False" />
+                    <property name="ShowMissingRemarks" value="False" />
+                    <property name="ShowMissingParams" value="False" />
+                    <property name="ShowMissingReturns" value="False" />
+                    <property name="ShowMissingValues" value="False" />
+                    <property name="DocumentInternals" value="False" />
+                    <property name="DocumentProtected" value="True" />
+                    <property name="DocumentPrivates" value="False" />
+                    <property name="DocumentEmptyNamespaces" value="False" />
+                    <property name="IncludeAssemblyVersion" value="True" />
+                    <property name="CopyrightText" value="" />
+                    <property name="CopyrightHref" value="" />
+                </documenter>
+            </documenters>            
+        </ndoc>
+    </target>
+    
+    <target name="dist" depends="doc">
+        <delete dir="${dist.dir}" failonerror="false"/>
+        <mkdir dir="${dist.dir}"/>
+        <mkdir dir="${dist.dir}\src"/>
+        <copy todir="${dist.dir}">
+            <fileset basedir="${build.dir}">
+                <includes name="**/${nant.project.name}.dll"/>
+                <includes name="**/${nant.project.name}.chm"/>
+                <includes name="**/${nant.project.name}.xml"/>
+            </fileset>
+        </copy>
+
+	<copy todir="${dist.dir}\src">
+            <fileset basedir="${src.dir}">
+            	<includes name="**/*.cs"/>
+            	<includes name="**/*.csproj"/>
+            	<includes name="**/*.ndoc"/>
+            	<includes name="**/*.build"/>
+            </fileset>
+	</copy>
+
+        <zip zipfile="${dist.dir}\${nant.project.name}.zip">
+            <fileset basedir="${dist.dir}">
+                <includes name="**/*"/>
+            </fileset>
+        </zip>
+    </target>
+    
+</project>
